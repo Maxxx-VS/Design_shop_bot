@@ -2,7 +2,7 @@ from bot_token import BOT_TOKEN
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher, types, executor
-
+# from aiogram.filters import Command
 
 # Включаем логирование, чтобы не пропустить важные сообщения
 logging.basicConfig(level=logging.INFO)
@@ -12,24 +12,30 @@ dp = Dispatcher(bot)
 
 @dp.message_handler(commands=['start', 'help'])
 async def cmd_start(message: types.Message):
+    # markup = types.InlineKeyboardMarkup()
+    # btn1 = types.KeyboardButton("ДА!", callback_data='yes')
+    # btn2 = types.KeyboardButton("НЕТ!", callback_data='no')
+    # markup.add(btn1, btn2)
     file = open('img/first_img.jpg', 'rb')
-    text_1 = ("<b>Привет!👋🏻\n"
-            "Это магазин дизайнерских вещей для дома</b>")
-    text_2 = ("<b>Напиши своё имя</b>")
+    text_1 = (f"Привет 👋🏻, <b>{message.chat.first_name}!</b> \n"
+            "Это магазин дизайнерских вещей для дома")
+    text_2 = ("<b>Из какого ты города? 🇷🇺</b>")
     await message.answer(text_1.upper())
     await message.answer_photo(file)
     await message.answer(text_2.upper())
 
-@dp.message_handler(content_types='text')
+
+@dp.message_handler(content_types=['text'])
 async def cmd_name(message: types.Message):
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("Картины из смолы", callback_data='paintings'))
     markup.add(types.InlineKeyboardButton("Вазы из гипса", callback_data='vases'))
     markup.add(types.InlineKeyboardButton("Уникальные часы", callback_data='clocks'))
-    text_3 = (f"<b>Привет{1}!\n"
+    text_3 = (f"<b>{message.chat.first_name}!</b>\n"
                f"выбирай, что ты хочешь купить для своего\n"
-               f"любимого ❤️ дома</b>")
+               f"любимого ❤️ дома")
     await message.answer(text_3.upper(), reply_markup=markup)
+
 
 @dp.callback_query_handler()
 async def callback(call):
@@ -55,9 +61,10 @@ async def callback(call):
 
 
 
-# executor.start_polling(dp)
+
 
 # Запуск процесса поллинга новых апдейтов
+# executor.start_polling(dp)
 async def main():
     await dp.start_polling(bot)
 
