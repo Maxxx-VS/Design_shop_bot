@@ -1,8 +1,10 @@
-from bot_token import BOT_TOKEN
+from bot_token import BOT_TOKEN, API
 import asyncio
 import logging
+import requests
+import json
 from aiogram import Bot, Dispatcher, types, executor
-# from aiogram.filters import Command
+
 
 # Включаем логирование, чтобы не пропустить важные сообщения
 logging.basicConfig(level=logging.INFO)
@@ -24,16 +26,22 @@ async def cmd_start(message: types.Message):
     await message.answer_photo(file)
     await message.answer(text_2.upper())
 
-
 @dp.message_handler(content_types=['text'])
 async def cmd_name(message: types.Message):
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("Картины из смолы", callback_data='paintings'))
     markup.add(types.InlineKeyboardButton("Вазы из гипса", callback_data='vases'))
     markup.add(types.InlineKeyboardButton("Уникальные часы", callback_data='clocks'))
+    city = message.text.strip().lower()
+    res = requests.get(f'https://api.openweathermap.org/data/2.5/weather?q={city}&appid={API}&units=metric')
+
+    data = res.json()
+    print(data)
     text_3 = (f"<b>{message.chat.first_name}!</b>\n"
                f"выбирай, что ты хочешь купить для своего\n"
                f"любимого ❤️ дома")
+    text_4 = (f'Сейчас в городе: <b>{city.capitalize()}</b> температура <b>{round(data["main"]["temp"], 1)}</b> градусов!')
+    await message.answer(text_4)
     await message.answer(text_3.upper(), reply_markup=markup)
 
 
